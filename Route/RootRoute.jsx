@@ -1,41 +1,28 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HomeRoute } from "./Home/HomeRoute";
-import { DiscoverRoute } from "./Discover/DiscoverRoute";
-import { LibraryRoute } from "./Library/LibraryRoute";
-import Entypo from "react-native-vector-icons/Entypo";
-import Octicons from "react-native-vector-icons/Octicons";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "@react-navigation/native";
-import CustomTabBar from '../Component/Tab/CustomTabBar';
-const Tab = createBottomTabNavigator();
+import { useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import auth from '@react-native-firebase/auth';
+import { MainAppRoute } from './MainAppRoute';
+import { AuthStack } from './Auth/AuthRoute';
+
 export const RootRoute = () => {
-  const theme = useTheme()
-  return (
-    <>
-      <Tab.Navigator tabBar={(props) => <CustomTabBar {...props}/>} screenOptions={{tabBarShowLabel:false,tabBarLabelStyle:{
-        fontWeight:"bold",
-        },tabBarInactiveTintColor:theme.colors.textSecondary,tabBarActiveTintColor:theme.colors.primary,headerShown:false, tabBarStyle: {
-          backgroundColor:theme.colors.background,
-          borderColor:"rgba(28,27,27,0)"}}}>
-        <Tab.Screen  options={{
-          // eslint-disable-next-line react/no-unstable-nested-components
-          tabBarIcon: ({ color, size, focused }) => (
-           <Octicons name="home" color={color} size={size - 4} />
-          ),
-        }} name="Home" component={HomeRoute} />
-        <Tab.Screen options={{
-          // eslint-disable-next-line react/no-unstable-nested-components
-          tabBarIcon: ({ color, size, focused }) => (
-             <Entypo name="compass" color={color} size={size - 4} />
-          ),
-        }} name="Discover" component={DiscoverRoute} />
-        <Tab.Screen options={{
-          // eslint-disable-next-line react/no-unstable-nested-components
-          tabBarIcon: ({ color, size, focused }) => (
-            <MaterialCommunityIcons name="music-box-multiple-outline" color={color} size={size - 4} />
-          ),
-        }}  name="Library" component={LibraryRoute} />
-      </Tab.Navigator>
-    </>
-  );
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(user => {
+      setUser(user);
+      if (initializing) setInitializing(false);
+    });
+    return subscriber;
+  }, []);
+
+  if (initializing) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return user ? <MainAppRoute /> : <AuthStack />;
 };

@@ -13,6 +13,7 @@ import {
 } from "../../LocalStorage/AppSettings";
 import { useEffect, useState } from "react";
 import { SmallText } from "../../Component/Global/SmallText";
+import { getAuth, signOut } from '@react-native-firebase/auth';
 
 export const SettingsPage = ({navigation}) => {
   const [Font, setFont] = useState("");
@@ -71,6 +72,10 @@ export const SettingsPage = ({navigation}) => {
       ToastAndroid.CENTER,
     );
   }
+  async function handleLogout(){
+    const auth = getAuth();
+    signOut(auth);
+  }
   useEffect(() => {
     GetFontSize()
     GetPlayBack()
@@ -90,6 +95,7 @@ export const SettingsPage = ({navigation}) => {
            <EachDropDownWithLabel data={FontSize} text={"Font size"} placeholder={Font} OnChange={SetFont}/>
            <EachDropDownWithLabel data={PlaybackQuality} text={"Playback quality"} placeholder={Playback} OnChange={SetPlayBack}/>
            <EachDropDownWithLabel data={DownloadPath} text={"Download Path"} placeholder={Download} OnChange={SetDownLoad}/>
+           <LogoutButton onPress={handleLogout}/>
            <SmallText text={"*Note: If you change font size, change name or select languages please restart the app to see the effect"}/>
          </ScrollView>
        </PaddingConatiner>
@@ -133,4 +139,21 @@ function EachDropDownWithLabel({data, text, placeholder, OnChange}){
       width:120,
     }} data={data} labelField="value" valueField="value" onChange={OnChange}/>
   </View>
+}
+function LogoutButton({ onPress }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        backgroundColor: "rgb(34,39,34)",
+        padding: 20,
+        borderRadius: 10,
+        flexDirection: "row",
+        justifyContent: "center",
+        marginBottom: 10,
+      }}
+    >
+      <PlainText text={"Logout"} />
+    </Pressable>
+  );
 }
